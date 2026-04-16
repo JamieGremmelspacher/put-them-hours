@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>put.them.hours</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#7F77DD"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="put.them.hours"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --accent:#7F77DD;
+  --accent-bg:rgba(127,119,221,0.10);
+  --accent-border:rgba(127,119,221,0.35);
+  --bg:#f5f4f0;
+  --surface:#ffffff;
+  --surface2:#f0efe9;
+  --border:rgba(0,0,0,0.09);
+  --border2:rgba(0,0,0,0.17);
+  --text:#1a1a18;
+  --text2:#5a5a55;
+  --text3:#9a9a94;
+  --radius-sm:6px;
+  --radius-md:10px;
+  --radius-lg:14px;
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'DM Sans',sans-serif;
+  --green:#1D9E75;--amber:#BA7517;--red:#D85A30;
+  --custom-bg:transparent;
+}
+@media(prefers-color-scheme:dark){:root:not(.theme-light){
+  --bg:#111110;--surface:#1c1c1a;--surface2:#242422;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
+  --text:#e8e8e2;--text2:#a0a09a;--text3:#606059;
+  --accent-bg:rgba(127,119,221,0.14);--accent-border:rgba(127,119,221,0.40);
+}}
+:root.theme-dark{
+  --bg:#111110;--surface:#1c1c1a;--surface2:#242422;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
+  --text:#e8e8e2;--text2:#a0a09a;--text3:#606059;
+  --accent-bg:rgba(127,119,221,0.14);--accent-border:rgba(127,119,221,0.40);
+}
+:root.theme-light{
+  --bg:#f5f4f0;--surface:#ffffff;--surface2:#f0efe9;
+  --border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.17);
+  --text:#1a1a18;--text2:#5a5a55;--text3:#9a9a94;
+  --accent-bg:rgba(127,119,221,0.10);--accent-border:rgba(127,119,221,0.35);
+}
+html{font-size:16px}
+body{font-family:var(--sans);background:var(--custom-bg,var(--bg));color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+input,select{font-family:var(--sans);font-size:14px;padding:8px 11px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;width:100%}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg)}
+input[type=number],input[type=time]{font-family:var(--mono)}
+input[type=color]{width:44px;height:36px;padding:3px;border-radius:var(--radius-sm);cursor:pointer}
+button{font-family:var(--sans);cursor:pointer;border:none;background:none;color:inherit}
+.mono{font-family:var(--mono)}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .18s ease forwards}
+@keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.slide-up{animation:slideUp .22s cubic-bezier(.16,1,.3,1) forwards}
+
+/* Layout */
+.header{position:sticky;top:0;z-index:50;background:var(--surface);border-bottom:.5px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.header-title{font-size:28px;font-weight:700;letter-spacing:-.03em;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--accent)}
+.header-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.wk-nav{display:flex;align-items:center;gap:6px}
+.wk-btn{width:32px;height:32px;border-radius:var(--radius-sm);border:.5px solid var(--border2);color:var(--text2);font-size:17px;display:flex;align-items:center;justify-content:center;transition:background .12s}
+.wk-btn:hover{background:var(--surface2)}
+.wk-pill{padding:5px 16px;border-radius:var(--radius-sm);font-family:var(--mono);font-size:13px;font-weight:500;border:.5px solid var(--border);background:var(--surface2);color:var(--text);min-width:74px;text-align:center;transition:all .15s}
+.wk-pill.active{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent)}
+.wk-pill.past{cursor:pointer}.wk-pill.past:hover{background:var(--surface2)}
+.tabs{background:var(--surface);border-bottom:.5px solid var(--border);display:flex;padding:0 20px;gap:2px;overflow-x:auto}
+.tab-btn{padding:11px 14px;font-size:14px;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-.5px;white-space:nowrap;transition:color .15s}
+.tab-btn.active{color:var(--text);border-bottom-color:var(--text);font-weight:500}
+.tab-btn:hover:not(.active){color:var(--text)}
+.content{max-width:820px;margin:0 auto;padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+
+/* Cards */
+.card{background:var(--surface);border:.5px solid var(--border);border-radius:var(--radius-md)}
+.card-header{padding:12px 16px;border-bottom:.5px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.card-header-title{font-size:14px;font-weight:500}
+.card-header-sub{font-size:12px;color:var(--text3)}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px}
+.metric-card{background:var(--surface);border:.5px solid var(--border);border-radius:var(--radius-md);padding:14px 16px}
+.metric-label{font-size:12px;color:var(--text2);margin-bottom:5px}
+.metric-value{font-family:var(--mono);font-size:21px;font-weight:500}
+.bar-track{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .45s cubic-bezier(.4,0,.2,1)}
+.bar-track.thick{height:9px;border-radius:5px}
+
+/* Module rows */
+.mod-row{padding:14px 16px;border-bottom:.5px solid var(--border)}
+.mod-row:last-child{border-bottom:none}
+.mod-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+/* Day card (week view) */
+.day-card{background:var(--surface);border:.5px solid var(--border);border-radius:var(--radius-md);overflow:hidden;transition:border-color .15s}
+.day-card.today{border-color:var(--accent-border)}
+.day-header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface2);border-bottom:.5px solid var(--border)}
+.day-header.no-e{border-bottom:none}
+.day-name{font-size:14px;font-weight:500;flex:1}
+.day-name.today{color:var(--accent)}
+.add-btn{width:28px;height:28px;border-radius:50%;border:.5px solid var(--border2);font-size:19px;font-weight:300;line-height:1;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:all .15s}
+.add-btn:hover{background:var(--surface2)}
+.add-btn.today-btn{background:var(--accent);border-color:var(--accent);color:#fff}
+.day-entries{padding:8px 14px;display:flex;flex-direction:column;gap:6px}
+.entry-chip{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface2);border-radius:var(--radius-sm);border-left:3px solid #888;cursor:pointer;transition:opacity .15s}
+.entry-chip:hover{opacity:.72}
+.entry-mod{font-size:12px;font-weight:500;min-width:90px}
+.entry-hrs{font-family:var(--mono);font-size:14px;font-weight:500}
+.entry-note{font-size:12px;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.entry-edit{margin-left:auto;font-size:11px;color:var(--text3);flex-shrink:0}
+.add-row{padding:13px;border:.5px dashed var(--border2);border-radius:var(--radius-md);font-size:14px;color:var(--text2);width:100%;text-align:center;background:none;transition:background .15s}
+.add-row:hover{background:var(--surface2)}
+
+/* Calendar */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-day-header{text-align:center;font-size:11px;font-weight:500;color:var(--text3);padding:6px 0}
+.cal-cell{background:var(--surface);border:.5px solid var(--border);border-radius:var(--radius-sm);padding:7px;cursor:pointer;transition:border-color .15s;min-height:76px;display:flex;flex-direction:column;gap:3px}
+.cal-cell:hover{border-color:var(--border2)}
+.cal-cell.today{border-color:var(--accent-border)}
+.cal-cell.other-month{opacity:.35;cursor:default}
+.cal-cell.other-month:hover{border-color:var(--border)}
+.cal-num{font-size:12px;font-weight:500;line-height:1}
+.cal-num.today{color:var(--accent)}
+.cal-dots{display:flex;gap:2px;flex-wrap:wrap}
+.cal-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.cal-status{margin-top:auto;font-size:10px;font-family:var(--mono);color:var(--text3)}
+.cal-bar{height:3px;border-radius:2px;background:var(--surface2);overflow:hidden;margin-top:2px}
+.cal-bar-fill{height:100%;border-radius:2px}
+
+/* Status colors */
+.s-done{border-color:rgba(29,158,117,.45)!important;background:rgba(29,158,117,.04)!important}
+.s-partial{border-color:rgba(186,117,23,.45)!important;background:rgba(186,117,23,.04)!important}
+.s-missed{border-color:rgba(216,90,48,.45)!important;background:rgba(216,90,48,.04)!important}
+.s-planned{border-color:var(--accent-border)!important}
+
+/* History */
+.hist-card{background:var(--surface);border:.5px solid var(--border);border-radius:var(--radius-md);padding:14px 16px;cursor:pointer;transition:border-color .15s}
+.hist-card:hover{border-color:var(--border2)}
+.hist-card.active{border-color:var(--accent-border)}
+.hist-badge{font-size:11px;padding:2px 7px;border-radius:4px;font-weight:500;background:var(--accent-bg);color:var(--accent)}
+.mod-pill{display:flex;align-items:center;gap:5px;padding:3px 8px;background:var(--surface2);border-radius:4px;font-size:12px}
+
+/* Settings */
+.setting-section{display:flex;flex-direction:column;gap:10px}
+.setting-section-title{font-size:13px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:.5px solid var(--border)}
+.setting-row:last-child{border-bottom:none}
+.setting-label{font-size:14px;font-weight:500}
+.setting-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.theme-btn{padding:7px 14px;border:.5px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;color:var(--text2);transition:all .15s}
+.theme-btn.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+.theme-btn:hover:not(.active){background:var(--surface2)}
+
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.42);display:flex;align-items:flex-start;justify-content:center;padding-top:70px;z-index:200;overflow-y:auto}
+.modal{background:var(--surface);border-radius:var(--radius-lg);border:.5px solid var(--border2);width:100%;max-width:440px;margin:0 16px 80px;overflow:hidden}
+.modal-inner{padding:22px}
+.modal-title{font-size:15px;font-weight:500}
+.modal-sub{font-size:12px;margin-top:3px}
+.modal-close{font-size:22px;line-height:1;color:var(--text3);padding:0 4px}
+.modal-close:hover{color:var(--text)}
+.form-label{font-size:12px;color:var(--text2);display:block;margin-bottom:5px}
+.form-group{display:flex;flex-direction:column;gap:12px}
+
+/* Buttons */
+.btn-ghost{padding:9px 16px;border:.5px solid var(--border2);border-radius:var(--radius-sm);font-size:14px;color:var(--text2);background:none;transition:background .12s}
+.btn-ghost:hover{background:var(--surface2)}
+.btn-primary{padding:9px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;background:var(--text);color:var(--bg);border:none;transition:opacity .15s}
+.btn-primary:disabled{opacity:.35;cursor:default}
+.btn-danger{padding:9px 16px;border:.5px solid rgba(220,60,60,.4);border-radius:var(--radius-sm);font-size:14px;color:#c03030;background:none;transition:background .12s}
+.btn-danger:hover{background:rgba(220,60,60,.06)}
+.btn-accent{padding:9px 18px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;background:var(--accent);color:#fff;border:none;transition:opacity .15s}
+.btn-accent:hover{opacity:.85}
+
+/* Plan session row */
+.plan-row{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--surface2);border-radius:var(--radius-sm);border-left:3px solid #888}
+
+/* Misc */
+.edit-target{background:none;border:none;font-family:var(--mono);font-size:13px;color:var(--text2);cursor:pointer;padding:2px 4px;border-radius:3px;text-decoration:underline dotted;text-underline-offset:2px}
+.edit-target:hover{background:var(--surface2)}
+.target-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:.5px solid var(--border)}
+.target-row:last-child{border-bottom:none}
+.empty{padding:36px 20px;text-align:center;font-size:14px;color:var(--text3);line-height:1.8}
+
+@media(max-width:480px){
+  .header,.content{padding:12px 14px}
+  .tabs{padding:0 14px}
+  .cal-cell{min-height:58px;padding:5px}
+  .cal-cell .cal-status{display:none}
+}
+</style>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(r => console.log('SW registered:', r.scope))
+      .catch(e => console.log('SW error:', e));
+  });
+}
+</script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useCallback,useRef,useMemo} = React;
+
+// ── Utilities ─────────────────────────────────────────────────────────
+function isoWeekNum(date){const d=new Date(date);d.setHours(0,0,0,0);d.setDate(d.getDate()+3-(d.getDay()+6)%7);const w1=new Date(d.getFullYear(),0,4);return 1+Math.round(((d-w1)/864e5-3+(w1.getDay()+6)%7)/7);}
+function isoYear(date){const d=new Date(date);d.setDate(d.getDate()+3-(d.getDay()+6)%7);return d.getFullYear();}
+function toWK(date=new Date()){return`${isoYear(date)}-W${String(isoWeekNum(date)).padStart(2,'0')}`;}
+function wkDays(wk){const[yr,w]=wk.split('-W').map(Number);const jan4=new Date(yr,0,4);const start=new Date(jan4);start.setDate(jan4.getDate()-(jan4.getDay()+6)%7+(w-1)*7);return Array.from({length:7},(_,i)=>{const d=new Date(start);d.setDate(start.getDate()+i);return d;});}
+function nextWK(wk,dir){const d=wkDays(wk)[0];d.setDate(d.getDate()+dir*7);return toWK(d);}
+function toISO(d){const yr=d.getFullYear();const mo=String(d.getMonth()+1).padStart(2,'0');const dy=String(d.getDate()).padStart(2,'0');return`${yr}-${mo}-${dy}`;}
+function fmtDE(d){return d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'});}
+function fmtDuration(h){const m=Math.round(h*60);const hrs=Math.floor(m/60);const min=m%60;if(hrs===0)return`${min}min`;if(min===0)return`${hrs}h`;return`${hrs}h ${min}min`;}
+function hminToDecimal(h,m){return parseInt(h||0)+parseInt(m||0)/60;}
+function decimalToHMin(dec){const m=Math.round(dec*60);return{h:Math.floor(m/60),m:m%60};}
+function timeDiff(from,to){if(!from||!to)return 0;const[fh,fm]=from.split(':').map(Number);const[th,tm]=to.split(':').map(Number);return Math.max(0,(th*60+tm)-(fh*60+fm))/60;}
+function getActualHours(ds,weeks){const wk=toWK(new Date(ds+'T12:00:00'));const w=weeks[wk];if(!w)return 0;return(w.entries||[]).filter(e=>e.date===ds).reduce((s,e)=>s+e.hours,0);}
+function getDayStatus(ds,plannedH,actualH){const today=toISO(new Date());const isPast=ds<today;if(plannedH===0&&actualH===0)return'empty';if(plannedH===0&&actualH>0)return'extra';if(plannedH>0&&actualH>=plannedH)return'done';if(plannedH>0&&actualH>0)return'partial';if(plannedH>0&&actualH===0&&isPast)return'missed';if(plannedH>0)return'planned';return'empty';}
+
+const DAYNAMES=['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+const DAYSHORT=['Mo','Di','Mi','Do','Fr','Sa','So'];
+const MONTHS=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+const PALETTE=['#7F77DD','#1D9E75','#BA7517','#D85A30','#378ADD','#D4537E','#888780','#639922'];
+const INIT_MODS=[{id:'m1',name:'Mathematik',color:'#7F77DD'},{id:'m2',name:'Informatik',color:'#1D9E75'},{id:'m3',name:'Physik',color:'#BA7517'}];
+const INIT_SETTINGS={accentColor:'#7F77DD',theme:'system'};
+const LS_KEY='study-tracker-v3';
+const MIN_OPTIONS=[0,5,10,15,20,25,30,35,40,45,50,55];
+
+function loadData(){try{return JSON.parse(localStorage.getItem(LS_KEY))||null;}catch{return null;}}
+function saveData(s){try{localStorage.setItem(LS_KEY,JSON.stringify(s));}catch{}}
+
+// ── Bar ───────────────────────────────────────────────────────────────
+function Bar({pct,color,thick}){
+  return <div className={`bar-track${thick?' thick':''}`}><div className="bar-fill" style={{width:`${Math.min(pct,100)}%`,background:color}}/></div>;
+}
+
+// ── Color Picker Dot ──────────────────────────────────────────────────
+function ColorPickerDot({color,onChange,size=36}){
+  const ref=useRef();
+  return(
+    <div style={{position:'relative',flexShrink:0}}>
+      <div title="Farbe ändern" onClick={()=>ref.current?.click()} style={{width:size,height:size,borderRadius:'50%',background:color,cursor:'pointer',border:'2.5px solid var(--surface)',boxShadow:`0 0 0 1.5px ${color}55`,transition:'transform .15s',display:'flex',alignItems:'center',justifyContent:'center'}}
+        onMouseEnter={e=>{e.currentTarget.style.transform='scale(1.12)';}}
+        onMouseLeave={e=>{e.currentTarget.style.transform='scale(1)';}}>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.85)" strokeWidth="2.2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+      </div>
+      <input ref={ref} type="color" value={color} onChange={e=>onChange(e.target.value)} style={{position:'absolute',width:0,height:0,opacity:0,pointerEvents:'none',top:0,left:0}}/>
+    </div>
+  );
+}
+
+// ── Entry Modal ───────────────────────────────────────────────────────
+function EntryModal({modules,days,initialDate,editEntry,onSave,onDelete,onClose}){
+  const editing=!!editEntry;
+  const initHM=editEntry?decimalToHMin(editEntry.hours):{h:'',m:0};
+  const[date,setDate]=useState(editEntry?.date||initialDate||toISO(days[0]));
+  const[modId,setModId]=useState(editEntry?.moduleId||modules[0]?.id||'');
+  const[hVal,setHVal]=useState(initHM.h===0&&!editEntry?'':String(initHM.h));
+  const[mVal,setMVal]=useState(initHM.m);
+  const[note,setNote]=useState(editEntry?.note||'');
+  const hRef=useRef();
+  useEffect(()=>{setTimeout(()=>hRef.current?.focus(),80);},[]);
+  const total=hminToDecimal(hVal===''?0:hVal,mVal);
+  const valid=modId&&(parseInt(hVal||0)>0||parseInt(mVal)>0)&&total<=24;
+  const save=()=>{if(!valid)return;onSave({...(editEntry||{}),date,moduleId:modId,hours:total,note:note.trim()});};
+  const selMod=modules.find(m=>m.id===modId);
+
+  return(
+    <div className="overlay" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="modal slide-up">
+        <div style={{height:5,background:selMod?selMod.color:'var(--border)',transition:'background .2s'}}/>
+        <div className="modal-inner">
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:20}}>
+            <div style={{display:'flex',alignItems:'center',gap:12}}>
+              {selMod&&<div style={{width:38,height:38,borderRadius:'50%',background:selMod.color,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,boxShadow:`0 0 0 3px ${selMod.color}28`}}><span style={{fontSize:14,fontWeight:500,color:'rgba(255,255,255,.95)'}}>{selMod.name.slice(0,1).toUpperCase()}</span></div>}
+              <div>
+                <div className="modal-title">{editing?'Eintrag bearbeiten':'Lerneinheit eintragen'}</div>
+                {selMod&&<div className="modal-sub" style={{color:selMod.color}}>{selMod.name}</div>}
+              </div>
+            </div>
+            <button className="modal-close" onClick={onClose}>×</button>
+          </div>
+          <div className="form-group">
+            <div>
+              <label className="form-label">Modul</label>
+              <select value={modId} onChange={e=>setModId(e.target.value)}>
+                {modules.length===0&&<option value="">Erst Module anlegen →</option>}
+                {modules.map(m=><option key={m.id} value={m.id}>{m.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="form-label">Tag</label>
+              <select value={date} onChange={e=>setDate(e.target.value)}>
+                {days.map((d,i)=><option key={i} value={toISO(d)}>{DAYNAMES[i]}, {fmtDE(d)}{toISO(d)===toISO(new Date())?' (heute)':''}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="form-label">Lernzeit</label>
+              <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                <div style={{flex:1,position:'relative'}}>
+                  <input ref={hRef} type="number" min="0" max="23" step="1" value={hVal} onChange={e=>setHVal(e.target.value)} placeholder="0" onKeyDown={e=>e.key==='Enter'&&save()} style={{paddingRight:30}}/>
+                  <span style={{position:'absolute',right:10,top:'50%',transform:'translateY(-50%)',fontSize:13,color:'var(--text3)',pointerEvents:'none'}}>h</span>
+                </div>
+                <div style={{flex:1,position:'relative'}}>
+                  <select value={mVal} onChange={e=>setMVal(Number(e.target.value))}>
+                    {MIN_OPTIONS.map(m=><option key={m} value={m}>{String(m).padStart(2,'0')}</option>)}
+                  </select>
+                  <span style={{position:'absolute',right:30,top:'50%',transform:'translateY(-50%)',fontSize:13,color:'var(--text3)',pointerEvents:'none'}}>min</span>
+                </div>
+              </div>
+              {valid&&<div style={{marginTop:5,fontSize:12,color:'var(--text2)',fontFamily:'var(--mono)'}}>= {fmtDuration(total)}</div>}
+            </div>
+            <div>
+              <label className="form-label">Notiz (optional)</label>
+              <input type="text" value={note} onChange={e=>setNote(e.target.value)} placeholder="z. B. Kapitel 4, Übungsblatt 3..." onKeyDown={e=>e.key==='Enter'&&save()}/>
+            </div>
+          </div>
+          <div style={{display:'flex',gap:8,marginTop:20}}>
+            {editing&&<button className="btn-danger" onClick={()=>onDelete(editEntry.id)}>Löschen</button>}
+            <div style={{flex:1}}/>
+            <button className="btn-ghost" onClick={onClose}>Abbrechen</button>
+            <button className="btn-primary" onClick={save} disabled={!valid}>Speichern</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Day Plan Modal (Calendar) ─────────────────────────────────────────
+function DayPlanModal({ds,plans,actualEntries,modules,onSave,onClose}){
+  const[sessions,setSessions]=useState(plans.map(p=>({...p})));
+  const[newFrom,setNewFrom]=useState('09:00');
+  const[newTo,setNewTo]=useState('11:00');
+  const[newMod,setNewMod]=useState(modules[0]?.id||'');
+
+  const addPlan=()=>{
+    if(!newMod||timeDiff(newFrom,newTo)<=0)return;
+    setSessions(p=>[...p,{id:`p_${Date.now()}`,moduleId:newMod,from:newFrom,to:newTo}]);
+  };
+  const delPlan=id=>setSessions(p=>p.filter(s=>s.id!==id));
+  const save=()=>onSave(ds,sessions);
+
+  const plannedH=sessions.reduce((s,p)=>s+timeDiff(p.from,p.to),0);
+  const actualH=actualEntries.reduce((s,e)=>s+e.hours,0);
+  const d=new Date(ds+'T12:00:00');
+  const dayStr=d.toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+
+  return(
+    <div className="overlay" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="modal slide-up">
+        <div className="modal-inner">
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:18}}>
+            <div>
+              <div className="modal-title">{dayStr}</div>
+              <div className="modal-sub" style={{color:'var(--text2)',marginTop:3,display:'flex',gap:14}}>
+                <span>Geplant: <strong style={{color:'var(--text)'}}>{plannedH>0?fmtDuration(plannedH):'—'}</strong></span>
+                <span>Gelernt: <strong style={{color:actualH>=plannedH&&plannedH>0?'var(--green)':'var(--text)'}}>{actualH>0?fmtDuration(actualH):'—'}</strong></span>
+              </div>
+            </div>
+            <button className="modal-close" onClick={onClose}>×</button>
+          </div>
+
+          {/* Planned sessions */}
+          {sessions.length>0&&(
+            <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:14}}>
+              <div style={{fontSize:12,color:'var(--text3)',marginBottom:2}}>Geplante Sessions</div>
+              {sessions.map(s=>{
+                const mod=modules.find(m=>m.id===s.moduleId);
+                const dur=timeDiff(s.from,s.to);
+                return(
+                  <div key={s.id} className="plan-row" style={{borderLeftColor:mod?.color||'#888'}}>
+                    <div style={{width:8,height:8,borderRadius:'50%',background:mod?.color||'#888',flexShrink:0}}/>
+                    <span style={{fontSize:13,fontWeight:500,flex:1}}>{mod?.name||'—'}</span>
+                    <span className="mono" style={{fontSize:12,color:'var(--text2)'}}>{s.from} – {s.to}</span>
+                    {dur>0&&<span className="mono" style={{fontSize:12,color:'var(--text3)',minWidth:50,textAlign:'right'}}>{fmtDuration(dur)}</span>}
+                    <button onClick={()=>delPlan(s.id)} style={{fontSize:18,color:'var(--text3)',padding:'0 2px'}}>×</button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Add new planned session */}
+          <div style={{background:'var(--surface2)',borderRadius:'var(--radius-sm)',padding:12,marginBottom:16}}>
+            <div style={{fontSize:12,color:'var(--text3)',marginBottom:8}}>+ Neue geplante Session</div>
+            <div style={{display:'flex',flexDirection:'column',gap:8}}>
+              <select value={newMod} onChange={e=>setNewMod(e.target.value)}>
+                {modules.map(m=><option key={m.id} value={m.id}>{m.name}</option>)}
+              </select>
+              <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                <div style={{flex:1}}>
+                  <label className="form-label">Von</label>
+                  <input type="time" value={newFrom} onChange={e=>setNewFrom(e.target.value)}/>
+                </div>
+                <div style={{flex:1}}>
+                  <label className="form-label">Bis</label>
+                  <input type="time" value={newTo} onChange={e=>setNewTo(e.target.value)}/>
+                </div>
+                <button className="btn-accent" onClick={addPlan} style={{marginTop:18,whiteSpace:'nowrap',padding:'8px 14px'}}>+ Add</button>
+              </div>
+            </div>
+          </div>
+
+          {/* Actual entries that day */}
+          {actualEntries.length>0&&(
+            <div style={{marginBottom:16}}>
+              <div style={{fontSize:12,color:'var(--text3)',marginBottom:6}}>Tatsächlich gelernt</div>
+              {actualEntries.map(e=>{
+                const mod=modules.find(m=>m.id===e.moduleId);
+                return(
+                  <div key={e.id} style={{display:'flex',gap:10,alignItems:'center',padding:'7px 10px',background:'var(--surface2)',borderRadius:'var(--radius-sm)',borderLeft:`3px solid ${mod?.color||'#888'}`,marginBottom:4}}>
+                    <span style={{fontSize:12,fontWeight:500,color:mod?.color||'var(--text2)',flex:1}}>{mod?.name||'—'}</span>
+                    <span className="mono" style={{fontSize:13}}>{fmtDuration(e.hours)}</span>
+                    {e.note&&<span style={{fontSize:11,color:'var(--text3)'}}>{e.note}</span>}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          <div style={{display:'flex',gap:8}}>
+            <div style={{flex:1}}/>
+            <button className="btn-ghost" onClick={onClose}>Schließen</button>
+            <button className="btn-primary" onClick={save}>Speichern</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────
+function DashboardView({wData,modules,activeWK,setTarget,onAdd}){
+  const entries=wData.entries||[];
+  const targets=wData.targets||{};
+  const byMod={};entries.forEach(e=>{byMod[e.moduleId]=(byMod[e.moduleId]||0)+e.hours;});
+  const totalH=entries.reduce((s,e)=>s+e.hours,0);
+  const totalT=modules.reduce((s,m)=>s+(targets[m.id]||0),0);
+  const pct=totalT>0?Math.round((totalH/totalT)*100):0;
+  const[editId,setEditId]=useState(null);
+  const[editVal,setEditVal]=useState('');
+  const commit=m=>{const v=parseFloat(editVal);if(!isNaN(v)&&v>=0)setTarget(m.id,v);setEditId(null);};
+
+  return(
+    <div className="fade-up">
+      <div className="metric-grid" style={{marginBottom:12}}>
+        {[['Stunden diese Woche',totalH>0?fmtDuration(totalH):'—'],['Wochenziel',totalT>0?fmtDuration(totalT):'—'],['Fortschritt',totalT>0?`${pct}%`:'—'],['Einträge',String(entries.length)]].map(([l,v])=>(
+          <div key={l} className="metric-card"><div className="metric-label">{l}</div><div className="metric-value">{v}</div></div>
+        ))}
+      </div>
+      {totalT>0&&(
+        <div className="card" style={{padding:'14px 16px',marginBottom:12}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:8}}>
+            <span style={{fontSize:13,color:'var(--text2)'}}>Gesamtfortschritt KW {activeWK.split('-W')[1]}</span>
+            <span className="mono" style={{fontSize:13,fontWeight:500}}>{fmtDuration(totalH)} / {fmtDuration(totalT)}</span>
+          </div>
+          <Bar pct={pct} color="var(--accent)" thick/>
+        </div>
+      )}
+      <div className="card">
+        <div className="card-header">
+          <span className="card-header-title">Module & Fortschritt</span>
+          <span className="card-header-sub">Soll-Stunden anklicken</span>
+        </div>
+        {modules.length===0&&<div className="empty">Keine Module.<br/>Füge unter "Module" welche hinzu.</div>}
+        {modules.map((m,i)=>{
+          const ist=byMod[m.id]||0;const soll=targets[m.id]||0;const p=soll>0?Math.round((ist/soll)*100):0;const done=ist>0&&soll>0&&ist>=soll;
+          return(
+            <div key={m.id} className="mod-row">
+              <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
+                <div className="mod-dot" style={{background:m.color}}/>
+                <span style={{flex:1,fontSize:14,fontWeight:500}}>{m.name}</span>
+                <div style={{display:'flex',alignItems:'baseline',gap:5}}>
+                  <span className="mono" style={{fontSize:14,fontWeight:500,color:done?m.color:'var(--text)'}}>{fmtDuration(ist)}</span>
+                  <span style={{fontSize:12,color:'var(--text3)'}}>von</span>
+                  {editId===m.id
+                    ?<input type="number" autoFocus value={editVal} min="0" max="99" step="0.5" onChange={e=>setEditVal(e.target.value)} onBlur={()=>commit(m)} onKeyDown={e=>{if(e.key==='Enter')commit(m);if(e.key==='Escape')setEditId(null);}} style={{width:58,padding:'2px 6px',fontSize:13}}/>
+                    :<button className="edit-target" onClick={()=>{setEditId(m.id);setEditVal(String(soll||''));}}>{soll>0?fmtDuration(soll):'+ Ziel'}</button>}
+                  {done&&<span style={{fontSize:12,color:m.color,fontWeight:500}}>✓</span>}
+                </div>
+              </div>
+              <Bar pct={p} color={m.color}/>
+              {soll>0&&<div style={{fontSize:11,color:'var(--text3)',marginTop:4,textAlign:'right'}}>{p}%</div>}
+            </div>
+          );
+        })}
+      </div>
+      <button className="add-row" onClick={()=>onAdd(toISO(new Date()))}>+ Lerneinheit eintragen</button>
+    </div>
+  );
+}
+
+// ── Week View ─────────────────────────────────────────────────────────
+function WeekView({wData,modules,days,onAdd,onEdit}){
+  const entries=wData.entries||[];const todayStr=toISO(new Date());
+  return(
+    <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:8}}>
+      {days.map((day,i)=>{
+        const ds=toISO(day);const dayE=entries.filter(e=>e.date===ds);const isToday=ds===todayStr;const tot=dayE.reduce((s,e)=>s+e.hours,0);
+        return(
+          <div key={ds} className={`day-card${isToday?' today':''}`} style={{opacity:i>=5&&dayE.length===0?0.6:1}}>
+            <div className={`day-header${dayE.length===0?' no-e':''}`}>
+              <span className={`day-name${isToday?' today':''}`}>{DAYNAMES[i]}</span>
+              <span style={{fontSize:12,color:'var(--text3)'}}>{fmtDE(day)}</span>
+              {tot>0&&<span className="mono" style={{fontSize:13,fontWeight:500,color:'var(--text2)'}}>{fmtDuration(tot)}</span>}
+              <button className={`add-btn${isToday?' today-btn':''}`} onClick={()=>onAdd(ds)}>+</button>
+            </div>
+            {dayE.length>0&&(
+              <div className="day-entries">
+                {dayE.map(entry=>{const mod=modules.find(m=>m.id===entry.moduleId);return(
+                  <div key={entry.id} className="entry-chip" style={{borderLeftColor:mod?.color||'#888'}} onClick={()=>onEdit(entry)}>
+                    <span className="entry-mod" style={{color:mod?.color||'var(--text2)'}}>{mod?.name||'—'}</span>
+                    <span className="entry-hrs">{fmtDuration(entry.hours)}</span>
+                    {entry.note&&<span className="entry-note">{entry.note}</span>}
+                    <span className="entry-edit">bearbeiten</span>
+                  </div>
+                );})}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Calendar View ─────────────────────────────────────────────────────
+function CalendarView({planned,setPlanned,weeks,modules}){
+  const now=new Date();
+  const[month,setMonth]=useState(now.getMonth());
+  const[year,setYear]=useState(now.getFullYear());
+  const[dayModal,setDayModal]=useState(null);
+  const todayStr=toISO(now);
+
+  const prevMonth=()=>{if(month===0){setMonth(11);setYear(y=>y-1);}else setMonth(m=>m-1);};
+  const nextMonth=()=>{if(month===11){setMonth(0);setYear(y=>y+1);}else setMonth(m=>m+1);};
+
+  const firstDay=new Date(year,month,1);
+  const lastDay=new Date(year,month+1,0);
+  const offset=(firstDay.getDay()+6)%7;
+  const cells=[];
+  // prev month filler
+  for(let i=0;i<offset;i++){const d=new Date(year,month,1-offset+i);cells.push({d,other:true});}
+  for(let i=1;i<=lastDay.getDate();i++)cells.push({d:new Date(year,month,i),other:false});
+  // fill to complete 6 rows
+  while(cells.length<42){const last=cells[cells.length-1].d;const d=new Date(last);d.setDate(last.getDate()+1);cells.push({d,other:true});}
+
+  const handleCellClick=(ds,other)=>{if(other)return;setDayModal(ds);};
+  const savePlans=(ds,sessions)=>{setPlanned(p=>({...p,[ds]:sessions}));setDayModal(null);};
+
+  const statusColor={done:'var(--green)',partial:'var(--amber)',missed:'var(--red)',planned:'var(--accent)',extra:'var(--green)',empty:'transparent'};
+
+  return(
+    <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:12}}>
+      {/* Legend */}
+      <div style={{display:'flex',gap:14,flexWrap:'wrap',padding:'10px 14px',background:'var(--surface)',border:'.5px solid var(--border)',borderRadius:'var(--radius-md)',fontSize:12,color:'var(--text2)'}}>
+        {[['done','Ziel erreicht'],['partial','Teilweise'],['missed','Verpasst'],['planned','Geplant']].map(([s,l])=>(
+          <div key={s} style={{display:'flex',alignItems:'center',gap:5}}>
+            <div style={{width:10,height:10,borderRadius:2,background:statusColor[s],opacity:.8}}/>
+            <span>{l}</span>
+          </div>
+        ))}
+        <span style={{marginLeft:'auto',color:'var(--text3)'}}>Klicke auf einen Tag zum Bearbeiten</span>
+      </div>
+
+      {/* Month nav */}
+      <div className="card">
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',borderBottom:'.5px solid var(--border)'}}>
+          <button className="wk-btn" onClick={prevMonth}>‹</button>
+          <span style={{fontSize:15,fontWeight:500}}>{MONTHS[month]} {year}</span>
+          <button className="wk-btn" onClick={nextMonth}>›</button>
+        </div>
+        <div style={{padding:'10px'}}>
+          {/* Day headers */}
+          <div className="cal-grid" style={{marginBottom:4}}>
+            {DAYSHORT.map(d=><div key={d} className="cal-day-header">{d}</div>)}
+          </div>
+          {/* Day cells */}
+          <div className="cal-grid">
+            {cells.map(({d,other},i)=>{
+              const ds=toISO(d);
+              const plans=planned[ds]||[];
+              const plannedH=plans.reduce((s,p)=>s+timeDiff(p.from,p.to),0);
+              const actualH=getActualHours(ds,weeks);
+              const status=getDayStatus(ds,plannedH,actualH);
+              const isToday=ds===todayStr;
+              const pct=plannedH>0?Math.min(100,Math.round((actualH/plannedH)*100)):0;
+              const planMods=[...new Set(plans.map(p=>p.moduleId))].slice(0,4);
+
+              return(
+                <div key={i} className={`cal-cell${isToday?' today':''}${other?' other-month':''} ${status!=='empty'?`s-${status}`:''}`}
+                  onClick={()=>handleCellClick(ds,other)}>
+                  <div className="cal-num" style={{color:isToday?'var(--accent)':other?'var(--text3)':'var(--text)'}}>{d.getDate()}</div>
+                  {planMods.length>0&&(
+                    <div className="cal-dots">
+                      {planMods.map(mid=>{const mod=modules.find(m=>m.id===mid);return mod?<div key={mid} className="cal-dot" style={{background:mod.color}}/>:null;})}
+                    </div>
+                  )}
+                  {plannedH>0&&(
+                    <div className="cal-bar"><div className="cal-bar-fill" style={{width:`${pct}%`,background:statusColor[status]||'var(--accent)'}}/></div>
+                  )}
+                  {(plannedH>0||actualH>0)&&(
+                    <div className="cal-status">{actualH>0?fmtDuration(actualH):''}{plannedH>0&&actualH===0?fmtDuration(plannedH):''}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {dayModal&&(()=>{
+        const plans=planned[dayModal]||[];
+        const wk=toWK(new Date(dayModal+'T12:00:00'));
+        const w=weeks[wk]||{entries:[]};
+        const actualEntries=(w.entries||[]).filter(e=>e.date===dayModal);
+        return<DayPlanModal ds={dayModal} plans={plans} actualEntries={actualEntries} modules={modules} onSave={savePlans} onClose={()=>setDayModal(null)}/>;
+      })()}
+    </div>
+  );
+}
+
+// ── History View ──────────────────────────────────────────────────────
+function HistoryView({weeks,modules,activeWK,onSelectWK}){
+  const sorted=useMemo(()=>Object.keys(weeks).filter(wk=>(weeks[wk].entries||[]).length>0).sort((a,b)=>b.localeCompare(a)),[weeks]);
+  if(sorted.length===0)return<div className="card fade-up"><div className="empty">Noch keine Einträge vorhanden.</div></div>;
+  const allHours=sorted.reduce((s,wk)=>s+(weeks[wk].entries||[]).reduce((a,e)=>a+e.hours,0),0);
+  const allEntries=sorted.reduce((s,wk)=>s+(weeks[wk].entries||[]).length,0);
+
+  return(
+    <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:12}}>
+      <div className="metric-grid">
+        {[['Wochen mit Daten',String(sorted.length)],['Gesamt Stunden',allHours>0?fmtDuration(allHours):'—'],['Gesamt Einträge',String(allEntries)]].map(([l,v])=>(
+          <div key={l} className="metric-card"><div className="metric-label">{l}</div><div className="metric-value">{v}</div></div>
+        ))}
+      </div>
+      {sorted.map(wk=>{
+        const d=weeks[wk];const entries=d.entries||[];const targets=d.targets||{};
+        const wdays=wkDays(wk);const totalH=entries.reduce((s,e)=>s+e.hours,0);
+        const totalT=modules.reduce((s,m)=>s+(targets[m.id]||0),0);const pct=totalT>0?Math.round((totalH/totalT)*100):null;
+        const[yr,wn]=wk.split('-W');const isActive=wk===activeWK;
+        const byMod={};entries.forEach(e=>{byMod[e.moduleId]=(byMod[e.moduleId]||0)+e.hours;});
+        const topMods=modules.filter(m=>byMod[m.id]>0).sort((a,b)=>(byMod[b.id]||0)-(byMod[a.id]||0)).slice(0,4);
+        return(
+          <div key={wk} className={`hist-card${isActive?' active':''}`} onClick={()=>onSelectWK(wk)}>
+            <div style={{display:'flex',alignItems:'flex-start',gap:12,marginBottom:10}}>
+              <div style={{flex:1}}>
+                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:3}}>
+                  <span className="mono" style={{fontSize:15,fontWeight:500,color:isActive?'var(--accent)':'var(--text)'}}>KW {wn}</span>
+                  {isActive&&<span className="hist-badge">aktiv</span>}
+                </div>
+                <div style={{fontSize:12,color:'var(--text3)'}}>{fmtDE(wdays[0])} – {fmtDE(wdays[6])} · {yr}</div>
+              </div>
+              <div style={{textAlign:'right'}}>
+                <div className="mono" style={{fontSize:15,fontWeight:500}}>{fmtDuration(totalH)}</div>
+                {pct!==null&&<div style={{fontSize:12,color:pct>=100?'var(--green)':'var(--text2)',marginTop:2}}>{pct}% von Ziel</div>}
+              </div>
+            </div>
+            {topMods.length>0&&(
+              <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:10}}>
+                {topMods.map(m=>(
+                  <div key={m.id} className="mod-pill">
+                    <div style={{width:6,height:6,borderRadius:'50%',background:m.color}}/>
+                    <span style={{color:'var(--text2)'}}>{m.name}</span>
+                    <span className="mono" style={{fontWeight:500}}>{fmtDuration(byMod[m.id]||0)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {pct!==null?<Bar pct={pct} color={isActive?'var(--accent)':'#888780'}/>:<div style={{fontSize:12,color:'var(--text3)'}}>Kein Wochenziel · {entries.length} Einträge</div>}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Module View ───────────────────────────────────────────────────────
+function ModuleView({modules,setModules,defaultTargets,setDefaultTargets}){
+  const[newName,setNewName]=useState('');
+  const[editId,setEditId]=useState(null);
+  const[editName,setEditName]=useState('');
+  const addMod=()=>{
+    if(!newName.trim())return;
+    const used=modules.map(m=>m.color);
+    const color=PALETTE.find(c=>!used.includes(c))||PALETTE[modules.length%PALETTE.length];
+    setModules(p=>[...p,{id:`m_${Date.now()}`,name:newName.trim(),color}]);setNewName('');
+  };
+  const saveEdit=id=>{if(!editName.trim())return;setModules(p=>p.map(m=>m.id===id?{...m,name:editName.trim()}:m));setEditId(null);};
+  const setColor=(id,c)=>setModules(p=>p.map(m=>m.id===id?{...m,color:c}:m));
+
+  return(
+    <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:12}}>
+      <div className="card">
+        <div className="card-header">
+          <span className="card-header-title">Module</span>
+          <span className="card-header-sub">Farbkreis → Farbrad · Name → Umbenennen</span>
+        </div>
+        {modules.length===0&&<div className="empty">Noch keine Module.</div>}
+        {modules.map((m,i)=>(
+          <div key={m.id} style={{display:'flex',alignItems:'center',gap:14,padding:'12px 16px',borderBottom:i<modules.length-1?'.5px solid var(--border)':'none',borderLeft:`3px solid ${m.color}`}}>
+            <ColorPickerDot color={m.color} onChange={c=>setColor(m.id,c)}/>
+            {editId===m.id
+              ?<input autoFocus value={editName} style={{flex:1}} onChange={e=>setEditName(e.target.value)} onBlur={()=>saveEdit(m.id)} onKeyDown={e=>{if(e.key==='Enter')saveEdit(m.id);if(e.key==='Escape')setEditId(null);}}/>
+              :<span style={{flex:1,fontSize:14,fontWeight:500,cursor:'pointer',textDecoration:'underline dotted',textUnderlineOffset:2}} onClick={()=>{setEditId(m.id);setEditName(m.name);}}>{m.name}</span>}
+            <button onClick={()=>setModules(p=>p.filter(x=>x.id!==m.id))} style={{fontSize:20,color:'var(--text3)',padding:'0 4px'}}>×</button>
+          </div>
+        ))}
+      </div>
+      <div style={{display:'flex',gap:8}}>
+        <input value={newName} placeholder="Neues Modul (z. B. Statistik)..." onChange={e=>setNewName(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addMod()}/>
+        <button onClick={addMod} className="btn-ghost" style={{whiteSpace:'nowrap'}}>+ Hinzufügen</button>
+      </div>
+      <div className="card">
+        <div className="card-header">
+          <span className="card-header-title">Standard-Wochenziele</span>
+          <span className="card-header-sub">Automatisch für neue Wochen</span>
+        </div>
+        {modules.length===0&&<div className="empty">Erst Module anlegen.</div>}
+        {modules.map(m=>(
+          <div key={m.id} className="target-row">
+            <div className="mod-dot" style={{background:m.color}}/>
+            <span style={{flex:1,fontSize:14}}>{m.name}</span>
+            <div style={{display:'flex',alignItems:'center',gap:6}}>
+              <input type="number" min="0" max="99" step="0.5" style={{width:70,textAlign:'center',fontFamily:'var(--mono)',fontSize:13}} value={defaultTargets[m.id]||''} placeholder="—"
+                onChange={e=>{const v=parseFloat(e.target.value);setDefaultTargets(p=>({...p,[m.id]:isNaN(v)?undefined:v}));}}/>
+              <span style={{fontSize:13,color:'var(--text3)',whiteSpace:'nowrap'}}>h / Woche</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Settings View ─────────────────────────────────────────────────────
+function SettingsView({settings,setSettings,allData,onImport}){
+  const fileRef=useRef();
+  const[imported,setImported]=useState(false);
+
+  const setTheme=t=>{
+    setSettings(s=>({...s,theme:t}));
+    document.documentElement.className=t==='system'?'':t==='dark'?'theme-dark':'theme-light';
+  };
+  const setAccent=c=>{
+    setSettings(s=>({...s,accentColor:c}));
+    document.documentElement.style.setProperty('--accent',c);
+    const r=parseInt(c.slice(1,3),16),g=parseInt(c.slice(3,5),16),b=parseInt(c.slice(5,7),16);
+    document.documentElement.style.setProperty('--accent-bg',`rgba(${r},${g},${b},0.11)`);
+    document.documentElement.style.setProperty('--accent-border',`rgba(${r},${g},${b},0.36)`);
+  };
+  const setCustomBg=c=>{
+    if(c==='off'){
+      setSettings(s=>({...s,customBg:null}));
+      document.documentElement.style.setProperty('--custom-bg','');
+    } else {
+      setSettings(s=>({...s,customBg:c}));
+      document.documentElement.style.setProperty('--custom-bg',c);
+    }
+  };
+
+  const exportJSON=()=>{
+    const blob=new Blob([JSON.stringify(allData,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=`study-tracker-${toISO(new Date())}.json`;a.click();URL.revokeObjectURL(url);
+  };
+  const handleImport=e=>{
+    const file=e.target.files?.[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{try{onImport(JSON.parse(ev.target.result));setImported(true);setTimeout(()=>setImported(false),3000);}catch{}};
+    reader.readAsText(file);e.target.value='';
+  };
+
+  return(
+    <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:20}}>
+      {/* Appearance */}
+      <div className="setting-section">
+        <div className="setting-section-title">Erscheinungsbild</div>
+        <div className="card">
+          {/* Theme */}
+          <div className="setting-row">
+            <div>
+              <div className="setting-label">Farbmodus</div>
+              <div className="setting-sub">Hell, Dunkel oder Systemeinstellung</div>
+            </div>
+            <div style={{display:'flex',gap:6}}>
+              {[['system','System'],['light','Hell'],['dark','Dunkel']].map(([v,l])=>(
+                <button key={v} className={`theme-btn${settings.theme===v?' active':''}`} onClick={()=>setTheme(v)}>{l}</button>
+              ))}
+            </div>
+          </div>
+          {/* Accent */}
+          <div className="setting-row">
+            <div>
+              <div className="setting-label">Akzentfarbe</div>
+              <div className="setting-sub">Hauptfarbe der App (Navigation, Buttons, Highlights)</div>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:10}}>
+              <div style={{width:28,height:28,borderRadius:'50%',background:settings.accentColor,border:'.5px solid var(--border2)'}}/>
+              <input type="color" value={settings.accentColor} onChange={e=>setAccent(e.target.value)} style={{width:44,height:36}}/>
+              <button className="btn-ghost" style={{fontSize:12,padding:'5px 10px'}} onClick={()=>setAccent('#7F77DD')}>Reset</button>
+            </div>
+          </div>
+          {/* Custom background */}
+          <div className="setting-row">
+            <div>
+              <div className="setting-label">Hintergrundfarbe</div>
+              <div className="setting-sub">Eigene Hintergrundfarbe statt Hell/Dunkel</div>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:8}}>
+              {settings.customBg&&(
+                <div style={{width:28,height:28,borderRadius:'50%',background:settings.customBg,border:'.5px solid var(--border2)'}}/>
+              )}
+              <input type="color" value={settings.customBg||'#f5f4f0'} onChange={e=>setCustomBg(e.target.value)} style={{width:44,height:36}}/>
+              {settings.customBg&&(
+                <button className="btn-ghost" style={{fontSize:12,padding:'5px 10px'}} onClick={()=>setCustomBg('off')}>Reset</button>
+              )}
+            </div>
+          </div>
+          {/* Preview */}
+          <div style={{padding:'12px 16px',borderTop:'.5px solid var(--border)',display:'flex',gap:10,alignItems:'center',flexWrap:'wrap'}}>
+            <span style={{fontSize:12,color:'var(--text3)'}}>Vorschau:</span>
+            <div style={{padding:'5px 14px',background:'var(--accent)',color:'#fff',borderRadius:'var(--radius-sm)',fontSize:13,fontWeight:500}}>Button</div>
+            <div style={{padding:'5px 14px',background:'var(--accent-bg)',color:'var(--accent)',border:'.5px solid var(--accent-border)',borderRadius:'var(--radius-sm)',fontSize:13}}>Badge</div>
+            <div style={{width:80,height:6,borderRadius:3,background:'var(--surface2)',overflow:'hidden'}}><div style={{width:'65%',height:'100%',background:'var(--accent)',borderRadius:3}}/></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Data */}
+      <div className="setting-section">
+        <div className="setting-section-title">Daten & Backup</div>
+        <div className="card">
+          <div className="setting-row">
+            <div>
+              <div className="setting-label">Daten exportieren</div>
+              <div className="setting-sub">Alle Einträge, Module und Einstellungen als JSON-Datei</div>
+            </div>
+            <button className="btn-ghost" onClick={exportJSON}>⬇ Export</button>
+          </div>
+          <div className="setting-row">
+            <div>
+              <div className="setting-label">Daten importieren</div>
+              <div className="setting-sub">Backup wiederherstellen (überschreibt aktuelle Daten)</div>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:8}}>
+              {imported&&<span style={{fontSize:12,color:'var(--green)'}}>✓ Importiert</span>}
+              <button className="btn-ghost" onClick={()=>fileRef.current?.click()}>⬆ Import</button>
+              <input ref={fileRef} type="file" accept=".json" onChange={handleImport} style={{display:'none'}}/>
+            </div>
+          </div>
+        </div>
+        <div style={{padding:'12px 16px',background:'var(--surface2)',border:'.5px solid var(--border)',borderRadius:'var(--radius-md)',fontSize:13,color:'var(--text2)',lineHeight:1.7}}>
+          <strong style={{color:'var(--text)'}}>💾 Datenspeicherung</strong><br/>
+          Deine Daten werden automatisch im <strong>localStorage</strong> deines Browsers gespeichert — sie bleiben auch nach dem Schließen des Browsers erhalten. Um Daten zwischen Geräten zu übertragen oder dauerhaft zu sichern, nutze Export/Import.
+        </div>
+      </div>
+
+      {/* Info */}
+      <div className="setting-section">
+        <div className="setting-section-title">Info</div>
+        <div className="card">
+          <div className="setting-row">
+            <div><div className="setting-label">Study Tracker</div><div className="setting-sub">Offline · Keine Konten · Deine Daten gehören dir</div></div>
+            <span className="mono" style={{fontSize:12,color:'var(--text3)'}}>v3.0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── App ────────────────────────────────────────────────────────────────
+function App(){
+  const todayWK=toWK();
+  const[modules,setModules]=useState(INIT_MODS);
+  const[weeks,setWeeks]=useState({});
+  const[planned,setPlanned]=useState({});
+  const[activeWK,setActiveWK]=useState(todayWK);
+  const[defaultTargets,setDefaultTargets]=useState({});
+  const[settings,setSettings]=useState(INIT_SETTINGS);
+  const[tab,setTab]=useState('dashboard');
+  const[modal,setModal]=useState(null);
+  const[ready,setReady]=useState(false);
+
+  useEffect(()=>{
+    const s=loadData();
+    if(s){
+      if(s.modules)setModules(s.modules);
+      if(s.weeks)setWeeks(s.weeks);
+      if(s.planned)setPlanned(s.planned);
+      if(s.activeWK)setActiveWK(s.activeWK);
+      if(s.defaultTargets)setDefaultTargets(s.defaultTargets);
+      if(s.settings){
+        setSettings(s.settings);
+        // Apply saved settings
+        if(s.settings.accentColor){
+          document.documentElement.style.setProperty('--accent',s.settings.accentColor);
+          const c=s.settings.accentColor;
+          const r=parseInt(c.slice(1,3),16),g=parseInt(c.slice(3,5),16),b=parseInt(c.slice(5,7),16);
+          document.documentElement.style.setProperty('--accent-bg',`rgba(${r},${g},${b},0.11)`);
+          document.documentElement.style.setProperty('--accent-border',`rgba(${r},${g},${b},0.36)`);
+        }
+        if(s.settings.theme&&s.settings.theme!=='system'){
+          document.documentElement.className=s.settings.theme==='dark'?'theme-dark':'theme-light';
+        }
+        if(s.settings.customBg){
+          document.documentElement.style.setProperty('--custom-bg',s.settings.customBg);
+        }
+      }
+    }
+    setReady(true);
+  },[]);
+
+  useEffect(()=>{if(!ready)return;saveData({modules,weeks,planned,activeWK,defaultTargets,settings});},[modules,weeks,planned,activeWK,defaultTargets,settings,ready]);
+
+  const getWeek=wk=>weeks[wk]||{targets:{},entries:[]};
+  const mutWeek=(wk,fn)=>setWeeks(prev=>{const curr=prev[wk]||{targets:{},entries:[]};return{...prev,[wk]:fn(curr)};});
+
+  const navigateWK=useCallback(wk=>{
+    setActiveWK(wk);
+    setWeeks(prev=>{
+      const curr=prev[wk];const hasT=curr&&Object.keys(curr.targets||{}).length>0;
+      if(!hasT&&Object.keys(defaultTargets).length>0)return{...prev,[wk]:{targets:{...defaultTargets},entries:[],...(curr||{})}};
+      return prev;
+    });
+  },[defaultTargets]);
+
+  const addEntry=entry=>{const wk=toWK(new Date(entry.date+'T12:00:00'));mutWeek(wk,w=>({...w,entries:[...w.entries,{id:`e_${Date.now()}_${Math.random().toString(36).slice(2)}`,...entry}]}));};
+  const updateEntry=(wk,upd)=>mutWeek(wk,w=>({...w,entries:w.entries.map(e=>e.id===upd.id?upd:e)}));
+  const deleteEntry=(wk,id)=>mutWeek(wk,w=>({...w,entries:w.entries.filter(e=>e.id!==id)}));
+  const setTarget=(modId,h)=>mutWeek(activeWK,w=>({...w,targets:{...w.targets,[modId]:h}}));
+
+  const handleImport=data=>{
+    if(data.modules)setModules(data.modules);
+    if(data.weeks)setWeeks(data.weeks);
+    if(data.planned)setPlanned(data.planned);
+    if(data.defaultTargets)setDefaultTargets(data.defaultTargets);
+    if(data.settings){setSettings(data.settings);}
+  };
+
+  if(!ready)return<div style={{padding:'2rem',color:'var(--text2)',fontSize:14}}>Lade...</div>;
+
+  const wData=getWeek(activeWK);const days=wkDays(activeWK);
+  const[yr,wn]=activeWK.split('-W');const isCurrentWK=activeWK===todayWK;
+
+  const TABS=[{id:'dashboard',label:'Dashboard'},{id:'week',label:'Woche'},{id:'calendar',label:'Kalender'},{id:'history',label:'Historie'},{id:'modules',label:'Module'},{id:'settings',label:'Einstellungen'}];
+
+  const openAdd=date=>setModal({type:'add',date});
+  const openEdit=entry=>setModal({type:'edit',entry});
+  const handleSave=data=>{if(modal.type==='add')addEntry(data);else updateEntry(toWK(new Date(data.date+'T12:00:00')),data);setModal(null);};
+  const handleDelete=id=>{deleteEntry(activeWK,id);setModal(null);};
+
+  const allData={modules,weeks,planned,activeWK,defaultTargets,settings};
+
+  return(
+    <>
+      <header className="header">
+        <div>
+          <div style={{fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif', fontWeight:700, letterSpacing:'-0.03em', fontSize:28, color:'var(--accent)', lineHeight:1}}>put.them.hours</div>
+          <div className="header-sub" style={{marginTop:4}}>{fmtDE(days[0])} – {fmtDE(days[6])} · {yr}</div>
+        </div>
+        <div className="wk-nav">
+          <button className="wk-btn" onClick={()=>navigateWK(nextWK(activeWK,-1))}>‹</button>
+          <div className={`wk-pill${isCurrentWK?' active':' past'}`} onClick={()=>!isCurrentWK&&navigateWK(todayWK)} title={isCurrentWK?'Aktuelle Woche':'Zur aktuellen Woche'}>KW {wn}</div>
+          <button className="wk-btn" onClick={()=>navigateWK(nextWK(activeWK,1))}>›</button>
+        </div>
+      </header>
+
+      <nav className="tabs">
+        {TABS.map(t=><button key={t.id} className={`tab-btn${tab===t.id?' active':''}`} onClick={()=>setTab(t.id)}>{t.label}</button>)}
+      </nav>
+
+      <main className="content">
+        {tab==='dashboard'&&<DashboardView wData={wData} modules={modules} activeWK={activeWK} setTarget={setTarget} onAdd={openAdd}/>}
+        {tab==='week'&&<WeekView wData={wData} modules={modules} days={days} onAdd={openAdd} onEdit={openEdit}/>}
+        {tab==='calendar'&&<CalendarView planned={planned} setPlanned={setPlanned} weeks={weeks} modules={modules}/>}
+        {tab==='history'&&<HistoryView weeks={weeks} modules={modules} activeWK={activeWK} onSelectWK={wk=>{navigateWK(wk);setTab('dashboard');}}/>}
+        {tab==='modules'&&<ModuleView modules={modules} setModules={setModules} defaultTargets={defaultTargets} setDefaultTargets={setDefaultTargets}/>}
+        {tab==='settings'&&<SettingsView settings={settings} setSettings={setSettings} allData={allData} onImport={handleImport}/>}
+      </main>
+
+      {modal&&<EntryModal modules={modules} days={days} initialDate={modal.date} editEntry={modal.type==='edit'?modal.entry:null} onSave={handleSave} onDelete={handleDelete} onClose={()=>setModal(null)}/>}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
